@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class AccountTest {
 
@@ -11,11 +12,11 @@ public class AccountTest {
 
     @BeforeEach
     public void setUp(){
-        myAccount = new Account();
+        myAccount = new Account("firstName", "lastName", "28569", "1234" );
     }
 
     @Test
-    public void testThatIHaveAnAccountBalanceIs0_IDeposit200AndBalanceIs200(){
+    public void IHaveAnAccountBalanceIs0IDeposit200AndBalanceIs200(){
         assertEquals(0, myAccount.getBalance());
 
         myAccount.deposit(200);
@@ -25,7 +26,7 @@ public class AccountTest {
     }
 
     @Test
-    public void testThatIHaveAnAccountAndBalance0_IDeposit_NegativeAmount_BalanceIs0(){
+    public void IHaveAnAccountAndBalance0IDepositNegativeAmountBalanceIs0(){
 
         assertEquals(0, myAccount.getBalance());
 
@@ -36,7 +37,7 @@ public class AccountTest {
     }
 
     @Test
-    public void testThatIHaveAnAccountAndBalanceIs0_IDepositMultipleTime_AndGetSumBalance(){
+    public void IHaveAnAccountAndBalanceIs0IDepositMultipleTimeAndGetSumBalance(){
 
         assertEquals(0, myAccount.getBalance());
 
@@ -48,22 +49,22 @@ public class AccountTest {
     }
 
     @Test
-    public void testThatWithdrawalGreaterThan_BalanceDoesNothing(){
+    public void cannotWithdrawMoreThanBalance(){
 
-        myAccount.setPin("1234");
         myAccount.deposit(200);
 
-        myAccount.withdrawal(300, "1234");
+        assertThrows(IllegalArgumentException.class, () -> {
+            myAccount.withdrawal(300, "1234");
+        });
 
         assertEquals(200, myAccount.getBalance());
 
     }
 
     @Test
-    public void testDeposit500ThenWithdraw200LeavesBalance300(){
+    public void IDeposit500ThenWithdraw200LeavesBalance300(){
 
         assertEquals(0, myAccount.getBalance());
-        myAccount.setPin("1234");
 
         myAccount.deposit(500);
 
@@ -76,10 +77,9 @@ public class AccountTest {
 
 
     @Test
-    public void testThatIWithdrawAllMyMoneyAndBalanceIs0(){
+    public void IWithdrawAllMyMoneyAndBalanceIs0(){
 
         assertEquals(0, myAccount.getBalance());
-        myAccount.setPin("1234");
 
         myAccount.deposit(500);
 
@@ -91,10 +91,9 @@ public class AccountTest {
     }
 
     @Test
-    public void testThatIWithdrawAllZeroAndBalanceIsStillThere(){
+    public void IWithdrawZeroAndBalanceIsStillThere(){
 
         assertEquals(0, myAccount.getBalance());
-        myAccount.setPin("1234");
 
         myAccount.deposit(500);
 
@@ -106,7 +105,8 @@ public class AccountTest {
     }
 
     @Test
-    public void testThatIDeposit0AndBalanceIs0(){
+    public void IDeposit0AndBalanceIs0(){
+
         assertEquals(0, myAccount.getBalance());
 
         myAccount.deposit(0);
@@ -117,9 +117,8 @@ public class AccountTest {
     }
 
     @Test
-    public void testThatIWithDrawWithCorrectPin(){
+    public void IWithDrawWithCorrectPinAndItIsSuccessful(){
 
-        myAccount.setPin("1234");
         myAccount.deposit(500);
 
         myAccount.withdrawal(300, "1234");
@@ -129,14 +128,52 @@ public class AccountTest {
 
 
     @Test
-    public void testThatIWithDrawWithWringPin_ReturnsSameBalance(){
+    public void IWithDrawWithWrongPin_ReturnsSameBalance(){
 
-        myAccount.setPin("1234");
         myAccount.deposit(500);
 
-        myAccount.withdrawal(300, "4444");
+        assertThrows(IllegalArgumentException.class, ()->{
+           myAccount.withdrawal(300, "2367");
+        });
 
         assertEquals(500, myAccount.getBalance());
     }
+
+    @Test
+    public void multipleWithdrawals(){
+
+
+        myAccount.deposit(2000);
+
+        myAccount.withdrawal(500, "1234");
+        myAccount.withdrawal(300, "1234");
+        myAccount.withdrawal(200, "1234");
+
+        assertEquals(1000, myAccount.getBalance());
+
+    }
+
+    @Test
+    public void testThatValidPinCanBeSet(){
+
+        assertEquals("1234", myAccount.getPin());
+
+    }
+    @Test
+    public void testThatPinLessThanFourDigitsThrowsException(){
+
+        assertThrows(IllegalArgumentException.class, ()-> {
+           myAccount.setPin("123");
+        });
+    }
+
+    @Test
+    public void testThatPinContainingLettersThrowsException(){
+
+        assertThrows(IllegalArgumentException.class, ()->{
+           myAccount.setPin("12a4");
+        });
+    }
+
 
 }
